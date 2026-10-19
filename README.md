@@ -90,7 +90,7 @@ search/
 ## 이미지 배포
 
 태그 push 시 GitHub Actions(`.github/workflows/publish.yml`)가 `ghcr.io/<owner>/search-svc` arm64 이미지를 올린다.
-board gRPC stub 은 비공개 `oinkvalley-protos` 의 Go 모듈이라, 저장소 secret **`PROTOS_READ_TOKEN`**(oinkvalley-protos Contents read 만 준 fine-grained token)이 필요하다.
+board gRPC stub 은 공개 Go 모듈(`oinkvalley-protos/go/board`)이라 빌드에 토큰이 필요 없다.
 
 ## 로컬
 
