@@ -18,7 +18,7 @@ const (
 	maxByIDs    = 20
 )
 
-// BrowsePosts — GET /browse/{key}/posts?page=&size=  (둘 다 필수, page 1부터)
+// BrowsePosts — GET /browse/{key}/posts?page=&size=&excludeAi=  (page·size 필수, page 1부터, excludeAi=true 면 AI 글 제외)
 func (h *Handlers) BrowsePosts(w http.ResponseWriter, r *http.Request) {
 	page, ok1 := intParam(r, "page")
 	size, ok2 := intParam(r, "size")
@@ -26,8 +26,13 @@ func (h *Handlers) BrowsePosts(w http.ResponseWriter, r *http.Request) {
 		writeAPIError(w, http.StatusBadRequest, fmt.Sprintf("page 는 1 이상, size 는 1~%d 이어야 합니다.", maxPageSize))
 		return
 	}
+	excludeAi, ok3 := boolParam(r, "excludeAi")
+	if !ok3 {
+		writeAPIError(w, http.StatusBadRequest, "excludeAi 는 true 또는 false 여야 합니다.")
+		return
+	}
 	actor := auth.ActorFromContext(r.Context())
-	result, err := h.Browse.List(r.Context(), r.PathValue("key"), actor.UserID, actor.Roles, page, size)
+	result, err := h.Browse.List(r.Context(), r.PathValue("key"), actor.UserID, actor.Roles, page, size, excludeAi)
 	if errors.Is(err, browse.ErrUnknownKey) {
 		writeAPIError(w, http.StatusNotFound, "없는 둘러보기입니다.")
 		return
@@ -72,4 +77,16 @@ func (h *Handlers) BrowsePostsByIDs(w http.ResponseWriter, r *http.Request) {
 func intParam(r *http.Request, name string) (int, bool) {
 	n, err := strconv.Atoi(r.URL.Query().Get(name))
 	return n, err == nil
+}
+
+// boolParam — 없으면 false, true/false 외 값은 잘못된 요청.
+func boolParam(r *http.Request, name string) (bool, bool) {
+	switch r.URL.Query().Get(name) {
+	case "", "false":
+		return false, true
+	case "true":
+		return true, true
+	default:
+		return false, false
+	}
 }

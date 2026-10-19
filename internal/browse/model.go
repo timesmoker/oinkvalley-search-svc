@@ -27,6 +27,7 @@ type Post struct {
 	Title        string `json:"title"`
 	CommentCount int64  `json:"commentCount"`
 	AuthorUserID int64  `json:"authorUserId"`
+	AIGenerated  bool   `json:"aiGenerated"`
 	CreatedAt    string `json:"createdAt"`
 }
 

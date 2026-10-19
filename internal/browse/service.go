@@ -23,7 +23,8 @@ func New(boards *listable.Store, m *meili.Client, index string, maxTotalHits int
 }
 
 // List — page 는 1부터.
-func (s *Service) List(ctx context.Context, key string, userID int64, roles []string, page, size int) (Page, error) {
+// excludeAi 면 AI 가 쓴 글을 뺀다 (전체 게시글 "AI 글 숨기기").
+func (s *Service) List(ctx context.Context, key string, userID int64, roles []string, page, size int, excludeAi bool) (Page, error) {
 	def, ok := Definitions[key]
 	if !ok {
 		return Page{}, ErrUnknownKey
@@ -48,6 +49,9 @@ func (s *Service) List(ctx context.Context, key string, userID int64, roles []st
 		if extra := def.Filter(userID); extra != "" {
 			filter += " AND (" + extra + ")"
 		}
+	}
+	if excludeAi {
+		filter += " AND ai_generated = false"
 	}
 
 	hitsPerPage := int64(size)
@@ -74,6 +78,7 @@ func (s *Service) List(ctx context.Context, key string, userID int64, roles []st
 			Title:        h.Title,
 			CommentCount: h.CommentCount,
 			AuthorUserID: h.UserID,
+			AIGenerated:  h.AIGenerated,
 			CreatedAt:    time.UnixMilli(h.CreatedAt).UTC().Format(time.RFC3339),
 		})
 	}
@@ -130,6 +135,7 @@ func (s *Service) ByIDs(ctx context.Context, roles []string, postIDs []int64) ([
 			Title:        h.Title,
 			CommentCount: h.CommentCount,
 			AuthorUserID: h.UserID,
+			AIGenerated:  h.AIGenerated,
 			CreatedAt:    time.UnixMilli(h.CreatedAt).UTC().Format(time.RFC3339),
 		}
 	}

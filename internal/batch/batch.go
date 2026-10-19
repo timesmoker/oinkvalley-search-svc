@@ -88,6 +88,7 @@ type docVersion struct {
 	ID           int64 `json:"id"`
 	UpdatedAt    int64 `json:"updated_at"`
 	CommentCount int64 `json:"comment_count"`
+	AIGenerated  bool  `json:"ai_generated"`
 }
 
 // Reconcile — 원본과 색인 대조.
@@ -114,7 +115,8 @@ func (r *Runner) Reconcile(ctx context.Context) error {
 		var docs []post.Doc
 		for _, p := range posts {
 			v, ok := indexed[p.GetId()]
-			if !ok || v.UpdatedAt != p.GetUpdatedAtMs() || v.CommentCount != p.GetCommentCount() {
+			if !ok || v.UpdatedAt != p.GetUpdatedAtMs() || v.CommentCount != p.GetCommentCount() ||
+				v.AIGenerated != p.GetAiGenerated() {
 				docs = append(docs, post.FromProto(p))
 			}
 			delete(indexed, p.GetId())
@@ -154,7 +156,7 @@ func (r *Runner) indexedRange(ctx context.Context, after, upper int64) (map[int6
 		resp, err := meili.Fetch[docVersion](ctx, r.meili, r.opt.Index, &meili.DocumentsQuery{
 			Offset: offset,
 			Limit:  int64(r.opt.FetchSize),
-			Fields: []string{"id", "updated_at", "comment_count"},
+			Fields: []string{"id", "updated_at", "comment_count", "ai_generated"},
 			Filter: filter,
 		})
 		if err != nil {

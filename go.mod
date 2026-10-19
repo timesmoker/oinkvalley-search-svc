@@ -9,7 +9,7 @@ require (
 	github.com/caarlos0/env/v11 v11.4.1
 	github.com/meilisearch/meilisearch-go v0.36.3
 	github.com/nats-io/nats.go v1.39.1
-	github.com/timesmoker/oinkvalley-protos/go/board v1.1.0
+	github.com/timesmoker/oinkvalley-protos/go/board v1.2.1
 	google.golang.org/grpc v1.66.2
 )
 
