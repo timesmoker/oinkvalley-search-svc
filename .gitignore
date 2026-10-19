@@ -1,0 +1,16 @@
+# 바이너리
+/server
+/bin/
+*.exe
+
+# 테스트·커버리지
+*.test
+coverage.out
+
+# IDE
+.idea/
+.vscode/
+
+# 로컬 env
+.env
+.env.*
