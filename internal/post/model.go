@@ -15,12 +15,14 @@ type Doc struct {
 	CreatedAt    int64  `json:"created_at"`
 	UpdatedAt    int64  `json:"updated_at"`
 	CommentCount int64  `json:"comment_count"`
+	// AIGenerated — AI 가 쓴 글 (board 내부 gRPC 경로). 전체 게시글 "AI 글 숨기기" 필터.
+	AIGenerated bool `json:"ai_generated"`
 }
 
 // IndexSettings — 색인 설정. id 는 대조 시 범위 필터용.
 func IndexSettings(maxTotalHits int) *meili.Settings {
 	return &meili.Settings{
-		FilterableAttributes: []string{"board_id", "user_id", "id"},
+		FilterableAttributes: []string{"board_id", "user_id", "id", "ai_generated"},
 		SortableAttributes:   []string{"id"},
 		SearchableAttributes: []string{"title"},
 		Pagination:           &meili.Pagination{MaxTotalHits: int64(maxTotalHits)},
@@ -37,5 +39,6 @@ func FromProto(p *boardv1.IndexPost) Doc {
 		CreatedAt:    p.GetCreatedAtMs(),
 		UpdatedAt:    p.GetUpdatedAtMs(),
 		CommentCount: p.GetCommentCount(),
+		AIGenerated:  p.GetAiGenerated(),
 	}
 }
